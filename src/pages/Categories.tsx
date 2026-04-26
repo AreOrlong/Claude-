@@ -54,7 +54,7 @@ export function Categories() {
               {catTools.map((t) => (
                 <button
                   key={t.id}
-                  onClick={() => navigate('tool-detail', t.id)}
+                  onClick={() => navigate('tools', t.id)}
                   className="group flex w-full items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-accent/50"
                 >
                   <div className="flex-1 min-w-0">

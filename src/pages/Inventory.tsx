@@ -123,11 +123,11 @@ export function Inventory() {
         </div>
       ) : view === 'grid' ? (
         <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((t) => <ToolCard key={t.id} tool={t} view="grid" onSelect={(id) => navigate('tool-detail', id)} />)}
+          {filtered.map((t) => <ToolCard key={t.id} tool={t} view="grid" onSelect={(id) => navigate('tools', id)} />)}
         </div>
       ) : (
         <div className="space-y-1.5">
-          {filtered.map((t) => <ToolCard key={t.id} tool={t} view="list" onSelect={(id) => navigate('tool-detail', id)} />)}
+          {filtered.map((t) => <ToolCard key={t.id} tool={t} view="list" onSelect={(id) => navigate('tools', id)} />)}
         </div>
       )}
 

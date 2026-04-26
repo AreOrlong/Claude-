@@ -15,14 +15,11 @@ interface AppState {
   locations: StorageLocation[];
   scanLogs: ScanLog[];
 
-  // Navigation
   currentPage: Page;
   selectedToolId: string | null;
 
-  // Actions: Navigation
   navigate: (page: Page, toolId?: string) => void;
 
-  // Actions: Tools
   addTool: (tool: Omit<Tool, 'id' | 'addedDate' | 'checkoutHistory' | 'maintenanceHistory'>) => void;
   updateTool: (id: string, updates: Partial<Tool>) => void;
   deleteTool: (id: string) => void;
@@ -31,15 +28,12 @@ interface AppState {
   updateToolStatus: (toolId: string, status: ToolStatus) => void;
   updateToolCondition: (toolId: string, condition: ToolCondition) => void;
 
-  // Actions: Locations
   addLocation: (location: Omit<StorageLocation, 'id'>) => void;
   updateLocation: (id: string, updates: Partial<StorageLocation>) => void;
   deleteLocation: (id: string) => void;
 
-  // Actions: Scan Logs
   addScanLog: (log: Omit<ScanLog, 'id'>) => void;
 
-  // Selectors (derived)
   getToolById: (id: string) => Tool | undefined;
   getLocationById: (id: string) => StorageLocation | undefined;
   getToolsAtLocation: (locationId: string) => Tool[];
@@ -58,7 +52,7 @@ export const useStore = create<AppState>()(
       tools: SAMPLE_TOOLS,
       locations: LOCATIONS,
       scanLogs: SAMPLE_SCAN_LOGS,
-      currentPage: 'dashboard',
+      currentPage: 'tools',
       selectedToolId: null,
 
       navigate(page, toolId) {
@@ -66,8 +60,11 @@ export const useStore = create<AppState>()(
       },
 
       addTool(toolData) {
+        const partNumber = toolData.partNumber?.trim()
+          || `TOOL-${Date.now().toString(36).toUpperCase().slice(-6)}`;
         const tool: Tool = {
           ...toolData,
+          partNumber,
           id: genId('tool'),
           addedDate: new Date().toISOString(),
           checkoutHistory: [],
@@ -97,24 +94,11 @@ export const useStore = create<AppState>()(
         set((s) => ({
           tools: s.tools.map((t) =>
             t.id === toolId
-              ? {
-                  ...t,
-                  status: 'checked-out' as ToolStatus,
-                  lastUsed: new Date().toISOString(),
-                  checkoutHistory: [...t.checkoutHistory, entry],
-                }
+              ? { ...t, status: 'checked-out' as ToolStatus, lastUsed: new Date().toISOString(), checkoutHistory: [...t.checkoutHistory, entry] }
               : t
           ),
           scanLogs: [
-            {
-              id: genId('sl'),
-              toolId,
-              toolName: s.tools.find((t) => t.id === toolId)?.name ?? '',
-              action: 'checkout',
-              timestamp: new Date().toISOString(),
-              performedBy: checkedOutBy,
-              notes: purpose,
-            },
+            { id: genId('sl'), toolId, toolName: s.tools.find((t) => t.id === toolId)?.name ?? '', action: 'checkout', timestamp: new Date().toISOString(), performedBy: checkedOutBy, notes: purpose },
             ...s.scanLogs,
           ],
         }));
@@ -125,47 +109,29 @@ export const useStore = create<AppState>()(
           tools: s.tools.map((t) => {
             if (t.id !== toolId) return t;
             const now = new Date().toISOString();
-            const history = t.checkoutHistory.map((e) =>
-              !e.returnedAt ? { ...e, returnedAt: now } : e
-            );
-            return { ...t, status: 'available' as ToolStatus, checkoutHistory: history };
+            return { ...t, status: 'available' as ToolStatus, checkoutHistory: t.checkoutHistory.map((e) => !e.returnedAt ? { ...e, returnedAt: now } : e) };
           }),
           scanLogs: [
-            {
-              id: genId('sl'),
-              toolId,
-              toolName: s.tools.find((t) => t.id === toolId)?.name ?? '',
-              action: 'return',
-              timestamp: new Date().toISOString(),
-              performedBy: returnedBy,
-            },
+            { id: genId('sl'), toolId, toolName: s.tools.find((t) => t.id === toolId)?.name ?? '', action: 'return', timestamp: new Date().toISOString(), performedBy: returnedBy },
             ...s.scanLogs,
           ],
         }));
       },
 
       updateToolStatus(toolId, status) {
-        set((s) => ({
-          tools: s.tools.map((t) => (t.id === toolId ? { ...t, status } : t)),
-        }));
+        set((s) => ({ tools: s.tools.map((t) => (t.id === toolId ? { ...t, status } : t)) }));
       },
 
       updateToolCondition(toolId, condition) {
-        set((s) => ({
-          tools: s.tools.map((t) => (t.id === toolId ? { ...t, condition } : t)),
-        }));
+        set((s) => ({ tools: s.tools.map((t) => (t.id === toolId ? { ...t, condition } : t)) }));
       },
 
       addLocation(locationData) {
-        set((s) => ({
-          locations: [...s.locations, { ...locationData, id: genId('loc') }],
-        }));
+        set((s) => ({ locations: [...s.locations, { ...locationData, id: genId('loc') }] }));
       },
 
       updateLocation(id, updates) {
-        set((s) => ({
-          locations: s.locations.map((l) => (l.id === id ? { ...l, ...updates } : l)),
-        }));
+        set((s) => ({ locations: s.locations.map((l) => (l.id === id ? { ...l, ...updates } : l)) }));
       },
 
       deleteLocation(id) {
@@ -200,11 +166,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: 'toolvault-storage',
-      partialize: (s) => ({
-        tools: s.tools,
-        locations: s.locations,
-        scanLogs: s.scanLogs,
-      }),
+      partialize: (s) => ({ tools: s.tools, locations: s.locations, scanLogs: s.scanLogs }),
     }
   )
 );

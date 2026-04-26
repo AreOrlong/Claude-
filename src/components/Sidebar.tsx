@@ -1,25 +1,19 @@
-import { LayoutDashboard, Wrench, QrCode, FolderOpen, MapPin, Settings, ChevronRight } from 'lucide-react'
+import { Wrench, QrCode, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
 import { Separator } from '@/components/ui/separator'
 import type { Page } from '@/types'
 
-interface NavItem { id: Page; label: string; icon: React.ReactNode; badge?: number }
+const navItems: { id: Page; label: string; icon: React.ReactNode }[] = [
+  { id: 'tools', label: 'Tools',   icon: <Wrench size={16} /> },
+  { id: 'scan',  label: 'Scanner', icon: <QrCode size={16} /> },
+]
 
 export function Sidebar() {
-  const { currentPage, navigate, getLowStockTools } = useStore()
-  const lowStock = getLowStockTools().length
-
-  const navItems: NavItem[] = [
-    { id: 'dashboard',  label: 'Dashboard',  icon: <LayoutDashboard size={16} /> },
-    { id: 'inventory',  label: 'Inventory',  icon: <Wrench size={16} />, badge: lowStock > 0 ? lowStock : undefined },
-    { id: 'scan',       label: 'Scanner',    icon: <QrCode size={16} /> },
-    { id: 'categories', label: 'Categories', icon: <FolderOpen size={16} /> },
-    { id: 'locations',  label: 'Locations',  icon: <MapPin size={16} /> },
-  ]
+  const { currentPage, navigate } = useStore()
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r border-border bg-card">
+    <aside className="flex h-full w-52 flex-col border-r border-border bg-card">
       {/* Logo */}
       <div className="flex h-14 items-center gap-3 px-4">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 ring-1 ring-primary/30">
@@ -31,13 +25,12 @@ export function Sidebar() {
         </div>
         <div>
           <p className="text-sm font-bold tracking-tight text-foreground">ToolVault</p>
-          <p className="text-[10px] font-mono text-muted-foreground tracking-widest uppercase">Machine Tools</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Machine Tools</p>
         </div>
       </div>
 
       <Separator />
 
-      {/* Nav */}
       <nav className="flex-1 space-y-0.5 p-2 pt-3">
         {navItems.map((item) => {
           const active = currentPage === item.id
@@ -46,21 +39,14 @@ export function Sidebar() {
               key={item.id}
               onClick={() => navigate(item.id)}
               className={cn(
-                'group flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-all',
-                active
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                'group flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-all',
+                active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               )}
             >
               <span className={cn(active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')}>
                 {item.icon}
               </span>
               <span className="flex-1 text-left">{item.label}</span>
-              {item.badge !== undefined && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500/20 px-1 text-[9px] font-bold text-amber-400">
-                  {item.badge}
-                </span>
-              )}
               {active && <ChevronRight size={13} className="text-primary/50" />}
             </button>
           )
@@ -69,12 +55,8 @@ export function Sidebar() {
 
       <Separator />
 
-      {/* Footer */}
-      <div className="p-2 pb-3">
-        <button className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-          <Settings size={16} /> Settings
-        </button>
-        <p className="mt-1 px-3 text-[10px] font-mono text-muted-foreground/40">v1.0.0</p>
+      <div className="p-3">
+        <p className="px-3 font-mono text-[10px] text-muted-foreground/40">v1.0.0</p>
       </div>
     </aside>
   )

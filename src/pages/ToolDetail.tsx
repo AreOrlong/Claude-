@@ -31,7 +31,7 @@ export function ToolDetail() {
     <div className="flex flex-col items-center justify-center py-32 text-center">
       <Wrench size={40} className="mb-4 text-muted-foreground/40" />
       <p className="text-sm text-muted-foreground">Tool not found</p>
-      <Button variant="link" onClick={() => navigate('inventory')}>Back to inventory</Button>
+      <Button variant="link" onClick={() => navigate('tools')}>Back to inventory</Button>
     </div>
   )
 
@@ -41,7 +41,7 @@ export function ToolDetail() {
   const canReturn    = tool.status === 'checked-out' || tool.status === 'in-use'
   const openCheckout = tool.checkoutHistory.find((e) => !e.returnedAt)
 
-  function handleDelete() { deleteTool(tool!.id); navigate('inventory') }
+  function handleDelete() { deleteTool(tool!.id); navigate('tools') }
 
   function handleCheckout(e: React.FormEvent) {
     e.preventDefault()
@@ -60,7 +60,7 @@ export function ToolDetail() {
     <div className="mx-auto max-w-5xl space-y-4 animate-slide-up">
       {/* Breadcrumb */}
       <div className="hidden items-center gap-2 md:flex">
-        <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate('inventory')}>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate('tools')}>
           <ArrowLeft size={14} /> Inventory
         </Button>
         <span className="text-muted-foreground/40">/</span>

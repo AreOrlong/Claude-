@@ -78,10 +78,4 @@ export interface CategoryMeta {
   borderColor: string;
 }
 
-export type Page =
-  | 'dashboard'
-  | 'inventory'
-  | 'tool-detail'
-  | 'scan'
-  | 'categories'
-  | 'locations';
+export type Page = 'tools' | 'scan';

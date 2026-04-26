@@ -109,7 +109,7 @@ export function Dashboard() {
                       {ACTION_LABEL[log.action]}
                     </span>
                     <button
-                      onClick={() => navigate('inventory')}
+                      onClick={() => navigate('tools')}
                       className="min-w-0 flex-1 truncate text-left text-xs text-foreground hover:text-primary transition-colors"
                     >
                       {log.toolName}
@@ -141,7 +141,7 @@ export function Dashboard() {
               {lowStock.map((t) => (
                 <button
                   key={t.id}
-                  onClick={() => navigate('tool-detail', t.id)}
+                  onClick={() => navigate('tools', t.id)}
                   className="flex items-center justify-between rounded-lg border border-amber-500/20 bg-background/60 px-3 py-2.5 text-left transition-colors hover:border-amber-500/40"
                 >
                   <div className="min-w-0">
@@ -181,7 +181,7 @@ export function Dashboard() {
                 )
               })}
             </div>
-            <Button variant="ghost" size="sm" className="mt-3 w-full text-xs text-muted-foreground" onClick={() => navigate('inventory')}>
+            <Button variant="ghost" size="sm" className="mt-3 w-full text-xs text-muted-foreground" onClick={() => navigate('tools')}>
               View all tools <ArrowRight size={12} />
             </Button>
           </CardContent>
@@ -203,7 +203,7 @@ export function Dashboard() {
                     <div className="flex items-center gap-3 py-2.5">
                       <div className="flex-1 min-w-0">
                         <button
-                          onClick={() => navigate('tool-detail', t.id)}
+                          onClick={() => navigate('tools', t.id)}
                           className="block truncate text-left text-xs font-medium text-foreground hover:text-primary transition-colors"
                         >
                           {t.name}

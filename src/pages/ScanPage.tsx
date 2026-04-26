@@ -202,7 +202,7 @@ export function ScanPage() {
             )}
 
             <div className="flex items-center justify-between border-t border-border pt-3">
-              <Button variant="link" size="sm" className="h-auto p-0 text-xs text-primary" onClick={() => navigate('tool-detail', scannedTool.id)}>
+              <Button variant="link" size="sm" className="h-auto p-0 text-xs text-primary" onClick={() => navigate('tools')}>
                 Full details <ArrowRight size={12} />
               </Button>
               <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => { reset(); startCamera() }}>

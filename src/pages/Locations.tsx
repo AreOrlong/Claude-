@@ -112,7 +112,7 @@ export function Locations() {
                     {locTools.slice(0, 4).map((t) => {
                       const m = getCategoryMeta(t.category)
                       return (
-                        <button key={t.id} onClick={() => navigate('tool-detail', t.id)} className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent">
+                        <button key={t.id} onClick={() => navigate('tools')} className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent">
                           <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', m.color.replace('text-', 'bg-'))} />
                           <span className="flex-1 truncate text-xs text-foreground group-hover:text-primary transition-colors">{t.name}</span>
                           <StatusBadge status={t.status} size="sm" />
