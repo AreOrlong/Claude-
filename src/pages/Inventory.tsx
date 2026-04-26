@@ -1,205 +1,137 @@
-import { useState, useMemo } from 'react';
-import { Search, Plus, LayoutGrid, List, X, SlidersHorizontal } from 'lucide-react';
-import { useStore } from '../store/useStore';
-import { ToolCard } from '../components/ToolCard';
-import { CATEGORY_META } from '../utils/categories';
-import { cn } from '../utils/cn';
-import type { ToolCategory, ToolStatus } from '../types';
-import { ToolModal } from '../components/ToolModal';
+import { useState, useMemo } from 'react'
+import { Search, Plus, LayoutGrid, List, X, SlidersHorizontal } from 'lucide-react'
+import { useStore } from '@/store/useStore'
+import { ToolCard } from '@/components/ToolCard'
+import { ToolModal } from '@/components/ToolModal'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { CATEGORY_META } from '@/utils/categories'
+import { cn } from '@/lib/utils'
+import type { ToolCategory, ToolStatus } from '@/types'
 
-type ViewMode = 'grid' | 'list';
+const STATUS_OPTIONS: { value: ToolStatus | 'all'; label: string }[] = [
+  { value: 'all', label: 'All' }, { value: 'available', label: 'Available' },
+  { value: 'in-use', label: 'In Use' }, { value: 'checked-out', label: 'Checked Out' },
+  { value: 'maintenance', label: 'Maintenance' }, { value: 'retired', label: 'Retired' },
+]
 
 export function Inventory() {
-  const { tools, navigate } = useStore();
+  const { tools, navigate } = useStore()
+  const [query, setQuery]                 = useState('')
+  const [view, setView]                   = useState<'grid' | 'list'>('grid')
+  const [categoryFilter, setCategoryFilter] = useState<ToolCategory | 'all'>('all')
+  const [statusFilter, setStatusFilter]   = useState<ToolStatus | 'all'>('all')
+  const [showModal, setShowModal]         = useState(false)
+  const [showFilters, setShowFilters]     = useState(false)
 
-  const [query, setQuery]                 = useState('');
-  const [view, setView]                   = useState<ViewMode>('grid');
-  const [categoryFilter, setCategoryFilter] = useState<ToolCategory | 'all'>('all');
-  const [statusFilter, setStatusFilter]   = useState<ToolStatus | 'all'>('all');
-  const [showModal, setShowModal]         = useState(false);
-  const [showFilters, setShowFilters]     = useState(false);
-
-  const filtered = useMemo(() => {
-    return tools.filter((t) => {
-      const q = query.toLowerCase();
-      const matchesSearch =
-        !q ||
-        t.name.toLowerCase().includes(q) ||
-        t.partNumber.toLowerCase().includes(q) ||
+  const filtered = useMemo(() => tools.filter((t) => {
+    const q = query.toLowerCase()
+    return (
+      (!q || t.name.toLowerCase().includes(q) || t.partNumber.toLowerCase().includes(q) ||
         (t.serialNumber?.toLowerCase().includes(q) ?? false) ||
-        (t.manufacturer?.toLowerCase().includes(q) ?? false) ||
-        t.category.includes(q);
-      const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
-      const matchesStatus   = statusFilter === 'all' || t.status === statusFilter;
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
-  }, [tools, query, categoryFilter, statusFilter]);
+        (t.manufacturer?.toLowerCase().includes(q) ?? false)) &&
+      (categoryFilter === 'all' || t.category === categoryFilter) &&
+      (statusFilter === 'all' || t.status === statusFilter)
+    )
+  }), [tools, query, categoryFilter, statusFilter])
 
-  const STATUS_OPTIONS: { value: ToolStatus | 'all'; label: string }[] = [
-    { value: 'all',          label: 'All' },
-    { value: 'available',    label: 'Available' },
-    { value: 'in-use',       label: 'In Use' },
-    { value: 'checked-out',  label: 'Checked Out' },
-    { value: 'maintenance',  label: 'Maintenance' },
-    { value: 'retired',      label: 'Retired' },
-  ];
+  const hasFilters = categoryFilter !== 'all' || statusFilter !== 'all'
 
   return (
-    <div className="space-y-3 animate-slide-in md:space-y-4">
+    <div className="space-y-3 animate-slide-up">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 md:gap-3">
-        {/* Search */}
+      <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500" />
-          <input
-            type="text"
-            placeholder="Search tools…"
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, part #, serial, manufacturer…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-surface-700/60 bg-surface-900 pl-9 pr-8 py-2.5 text-sm text-surface-200 placeholder-surface-500 outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-colors"
+            className="pl-9 pr-8"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-500 hover:text-surface-300">
+            <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X size={14} />
             </button>
           )}
         </div>
 
-        {/* Filter toggle */}
-        <button
+        <Button
+          variant={showFilters ? 'secondary' : 'outline'}
+          size="sm"
           onClick={() => setShowFilters((v) => !v)}
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors',
-            showFilters
-              ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400'
-              : 'border-surface-700/60 bg-surface-900 text-surface-400 hover:border-surface-600 hover:text-surface-200'
-          )}
+          className="gap-1.5 shrink-0"
         >
           <SlidersHorizontal size={14} />
           <span className="hidden sm:inline">Filters</span>
-          {(categoryFilter !== 'all' || statusFilter !== 'all') && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[9px] font-bold text-black">!</span>
-          )}
-        </button>
+          {hasFilters && <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">!</span>}
+        </Button>
 
-        {/* View toggle */}
-        <div className="flex items-center rounded-lg border border-surface-700/60 bg-surface-900 p-1">
-          <button
-            onClick={() => setView('grid')}
-            className={cn('rounded p-1.5 transition-colors', view === 'grid' ? 'bg-surface-700 text-surface-100' : 'text-surface-500 hover:text-surface-300')}
-          >
-            <LayoutGrid size={15} />
-          </button>
-          <button
-            onClick={() => setView('list')}
-            className={cn('rounded p-1.5 transition-colors', view === 'list' ? 'bg-surface-700 text-surface-100' : 'text-surface-500 hover:text-surface-300')}
-          >
-            <List size={15} />
-          </button>
+        <div className="flex items-center rounded-md border border-border bg-card p-0.5">
+          <Button variant={view === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7" onClick={() => setView('grid')}>
+            <LayoutGrid size={14} />
+          </Button>
+          <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7" onClick={() => setView('list')}>
+            <List size={14} />
+          </Button>
         </div>
 
-        {/* Add tool */}
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-cyan-500 px-3 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-cyan-400 md:px-4"
-        >
-          <Plus size={15} />
-          <span className="hidden sm:inline">Add Tool</span>
-        </button>
+        <Button size="sm" onClick={() => setShowModal(true)} className="shrink-0 gap-1.5">
+          <Plus size={14} /><span className="hidden sm:inline">Add Tool</span>
+        </Button>
       </div>
 
       {/* Filter panel */}
       {showFilters && (
-        <div className="space-y-3 rounded-lg border border-surface-700/60 bg-surface-900/60 p-4 animate-fade-in">
-          {/* Category filter */}
+        <div className="space-y-3 rounded-lg border border-border bg-card p-4 animate-fade-in">
           <div>
-            <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-surface-500">Category</p>
+            <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Category</p>
             <div className="flex flex-wrap gap-1.5">
-              <button
-                onClick={() => setCategoryFilter('all')}
-                className={cn(
-                  'rounded border px-2 py-0.5 text-xs font-medium transition-colors',
-                  categoryFilter === 'all'
-                    ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400'
-                    : 'border-surface-700/60 text-surface-400 hover:text-surface-200'
-                )}
-              >
-                All
-              </button>
+              <button onClick={() => setCategoryFilter('all')} className={cn('rounded-md border px-2.5 py-1 text-xs font-medium transition-colors', categoryFilter === 'all' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:text-foreground')}>All</button>
               {CATEGORY_META.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setCategoryFilter(c.id)}
-                  className={cn(
-                    'rounded border px-2 py-0.5 text-xs font-medium transition-colors',
-                    categoryFilter === c.id
-                      ? `${c.bgColor} ${c.borderColor} ${c.color}`
-                      : 'border-surface-700/60 text-surface-400 hover:text-surface-200'
-                  )}
-                >
+                <button key={c.id} onClick={() => setCategoryFilter(c.id)} className={cn('rounded-md border px-2.5 py-1 text-xs font-medium transition-colors', categoryFilter === c.id ? `${c.bgColor} ${c.borderColor} ${c.color}` : 'border-border text-muted-foreground hover:text-foreground')}>
                   {c.label}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Status filter */}
           <div>
-            <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-surface-500">Status</p>
+            <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Status</p>
             <div className="flex flex-wrap gap-1.5">
               {STATUS_OPTIONS.map((o) => (
-                <button
-                  key={o.value}
-                  onClick={() => setStatusFilter(o.value)}
-                  className={cn(
-                    'rounded border px-2 py-0.5 text-xs font-medium transition-colors',
-                    statusFilter === o.value
-                      ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400'
-                      : 'border-surface-700/60 text-surface-400 hover:text-surface-200'
-                  )}
-                >
+                <button key={o.value} onClick={() => setStatusFilter(o.value)} className={cn('rounded-md border px-2.5 py-1 text-xs font-medium transition-colors', statusFilter === o.value ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:text-foreground')}>
                   {o.label}
                 </button>
               ))}
             </div>
           </div>
-
-          <button
-            onClick={() => { setCategoryFilter('all'); setStatusFilter('all'); }}
-            className="text-xs text-surface-500 hover:text-surface-300 transition-colors"
-          >
-            Clear filters
-          </button>
+          {hasFilters && (
+            <button onClick={() => { setCategoryFilter('all'); setStatusFilter('all') }} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Clear all filters
+            </button>
+          )}
         </div>
       )}
 
-      {/* Results count */}
-      <p className="text-xs text-surface-500">
-        {filtered.length} tool{filtered.length !== 1 ? 's' : ''}
-      </p>
+      <p className="text-xs text-muted-foreground">{filtered.length} tool{filtered.length !== 1 ? 's' : ''}</p>
 
-      {/* Tool grid / list */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-700/60 py-16 text-center">
-          <Search size={28} className="mb-3 text-surface-600" />
-          <p className="text-sm font-medium text-surface-400">No tools found</p>
-          <p className="text-xs text-surface-600">Adjust your search or filters</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
+          <Search size={28} className="mb-3 text-muted-foreground/40" />
+          <p className="text-sm font-medium text-muted-foreground">No tools found</p>
+          <p className="text-xs text-muted-foreground/60">Try adjusting search or filters</p>
         </div>
       ) : view === 'grid' ? (
-        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-3 xl:grid-cols-4">
-          {filtered.map((t) => (
-            <ToolCard key={t.id} tool={t} view="grid" onSelect={(id) => navigate('tool-detail', id)} />
-          ))}
+        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-4">
+          {filtered.map((t) => <ToolCard key={t.id} tool={t} view="grid" onSelect={(id) => navigate('tool-detail', id)} />)}
         </div>
       ) : (
         <div className="space-y-1.5">
-          {filtered.map((t) => (
-            <ToolCard key={t.id} tool={t} view="list" onSelect={(id) => navigate('tool-detail', id)} />
-          ))}
+          {filtered.map((t) => <ToolCard key={t.id} tool={t} view="list" onSelect={(id) => navigate('tool-detail', id)} />)}
         </div>
       )}
 
       {showModal && <ToolModal onClose={() => setShowModal(false)} />}
     </div>
-  );
+  )
 }
