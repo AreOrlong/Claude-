@@ -1,5 +1,6 @@
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { BottomNav } from './BottomNav';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,14 +19,20 @@ export function Layout({ children }: LayoutProps) {
         }}
       />
 
-      <Sidebar />
+      {/* Sidebar — desktop only */}
+      <div className="hidden md:flex">
+        <Sidebar />
+      </div>
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6 animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-4 pb-20 animate-fade-in md:p-6 md:pb-6">
           {children}
         </main>
       </div>
+
+      {/* Bottom nav — mobile only */}
+      <BottomNav />
     </div>
   );
 }

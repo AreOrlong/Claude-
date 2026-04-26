@@ -105,13 +105,13 @@ export function ToolModal({ tool, onClose }: ToolModalProps) {
   const labelCls = 'mb-1 block text-[11px] font-medium uppercase tracking-widest text-surface-500';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative z-10 w-full max-w-2xl rounded-xl border border-surface-700/60 bg-surface-900 shadow-2xl animate-slide-in overflow-hidden">
+      <div className="relative z-10 w-full rounded-t-2xl border-t border-surface-700/60 bg-surface-900 shadow-2xl animate-slide-in overflow-hidden md:max-w-2xl md:rounded-xl md:border">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-surface-700/60 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-surface-700/60 px-5 py-4 md:px-6">
           <div>
             <h2 className="text-base font-semibold text-surface-100">
               {isEdit ? 'Edit Tool' : 'Add New Tool'}
@@ -125,7 +125,7 @@ export function ToolModal({ tool, onClose }: ToolModalProps) {
 
         {/* Body */}
         <form onSubmit={handleSubmit}>
-          <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
+          <div className="max-h-[75vh] overflow-y-auto px-5 py-4 md:max-h-[70vh] md:px-6 md:py-5">
             <div className="space-y-5">
               {/* Name + Part # */}
               <div className="grid grid-cols-2 gap-4">
